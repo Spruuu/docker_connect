@@ -1,0 +1,41 @@
+version: "3.3"
+
+services:
+
+  traefik:
+    image: "traefik"
+    container_name: "traefik-partie1"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    
+    labels:
+      - "traefik.http.routers.traefik.rule=Host(`traefik.helha.lan`)" # http://traefik.helha.lan
+      - "traefik.http.routers.traefik.entrypoints=web"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - nt-traefik
+  
+  portainer:
+    image: portainer/portainer-ce
+    container_name: "portainer-partie1"
+    labels:
+      - "traefik.http.routers.portainer.rule=Host(`portainer.helha.lan`)" # http://portainer.helha.lan
+      - "traefik.http.routers.portainer.entrypoints=web"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+    ports:
+      - "9000:9000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - nt-traefik
+
+networks:
+  nt-traefik:
+    external: true

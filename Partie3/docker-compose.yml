@@ -1,0 +1,115 @@
+version: "3.9"
+    
+services:
+  db1:
+    image: mysql:5.7
+    volumes:
+      - db1_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: main01
+      MYSQL_DATABASE: wp1db
+      MYSQL_USER: nico
+      MYSQL_PASSWORD: main01
+    networks:
+      - nt-wp1-database
+
+  wordpress1:
+    depends_on:
+      - db1
+    image: wordpress
+    volumes:
+      - wordpress1_data:/var/www/html
+    ports:
+      - "8000:80"
+    labels:
+      - "traefik.http.routers.wordpress1.rule=Host(`wp1.helha.lan`)" # http://wp1.helha.lan
+      - "traefik.http.routers.wordpress1.entrypoints=web"
+      - "traefik.http.services.wordpress1.loadbalancer.server.port=80"
+    environment:
+      WORDPRESS_DB_HOST: db1
+      WORDPRESS_DB_USER: nico
+      WORDPRESS_DB_PASSWORD: main01
+      WORDPRESS_DB_NAME: wp1db
+    networks:
+      - nt-traefik
+      - nt-wp1-database
+
+  db2:
+    image: mysql:5.7
+    volumes:
+      - db2_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: main01
+      MYSQL_DATABASE: wp2db
+      MYSQL_USER: nico
+      MYSQL_PASSWORD: main01
+    networks:
+      - nt-wp2-database
+
+  wordpress2:
+    depends_on:
+      - db2
+    image: wordpress
+    volumes:
+      - wordpress2_data:/var/www/html
+    ports:
+      - "8001:80"
+    labels:
+      - "traefik.http.routers.wordpress2.rule=Host(`wp2.helha.lan`)" # http://wp2.helha.lan
+      - "traefik.http.routers.wordpress2.entrypoints=web"
+    environment:
+      WORDPRESS_DB_HOST: db2
+      WORDPRESS_DB_USER: nico
+      WORDPRESS_DB_PASSWORD: main01
+      WORDPRESS_DB_NAME: wp2db
+    networks:
+      - nt-traefik
+      - nt-wp2-database
+
+  db3:
+    image: mysql:5.7
+    volumes:
+      - db3_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: main01
+      MYSQL_DATABASE: wp3db
+      MYSQL_USER: nico
+      MYSQL_PASSWORD: main01
+    networks:
+      - nt-wp3-database
+
+  wordpress3:
+    depends_on:
+      - db3
+    image: wordpress
+    volumes:
+      - wordpress3_data:/var/www/html
+    ports:
+      - "8002:80"
+    labels:
+      - "traefik.http.routers.wordpress3.rule=Host(`wp3.helha.lan`)" # http://wp3.helha.lan
+      - "traefik.http.routers.wordpress3.entrypoints=web"
+    environment:
+      WORDPRESS_DB_HOST: db3
+      WORDPRESS_DB_USER: nico
+      WORDPRESS_DB_PASSWORD: main01
+      WORDPRESS_DB_NAME: wp3db
+    networks:
+      - nt-traefik
+      - nt-wp3-database
+
+volumes:
+  db1_data:
+  wordpress1_data:
+  db2_data:
+  wordpress2_data:
+  db3_data:
+  wordpress3_data:
+
+networks:
+  nt-traefik:
+    external: true
+  nt-wp1-database:
+  nt-wp2-database:
+  nt-wp3-database:
+

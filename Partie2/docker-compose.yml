@@ -1,0 +1,52 @@
+version: "3.3"
+
+services:
+  nodered:
+    image: nodered/node-red
+    ports:
+      - "1880:1880"
+    labels:
+      - "traefik.http.routers.nodered.rule=Host(`nodered.helha.lan`)" # http://nodered.helha.lan
+      - "traefik.http.routers.nodered.entrypoints=web"
+      - "traefik.http.services.nodered.loadbalancer.server.port=1880"
+    volumes:
+      - nodedata:/data
+    networks:
+     - nt-traefik
+     - nt-db
+
+  db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: "nodedb"
+      MYSQL_USER: "user"
+      MYSQL_PASSWORD: "main01"
+      MYSQL_ROOT_PASSWORD: "main01"
+    volumes:
+     - "dbdata:/var/lib/mysql"
+    networks:
+     - nt-db
+  
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+     - "8081:80"
+    labels:
+      - "traefik.http.routers.phpmyadmin.rule=Host(`db.helha.lan`)" # http://db.helha.lan
+      - "traefik.http.routers.phpmyadmin.entrypoints=web"
+      - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
+    networks:
+     - nt-traefik
+     - nt-db
+
+volumes:
+  nodedata:
+  dbdata:
+  
+networks:
+  nt-traefik:
+    external: true
+  nt-db:
+    driver: bridge
